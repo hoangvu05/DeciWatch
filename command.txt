@@ -1,0 +1,8 @@
+conda remove -n deciwatch-env --all
+conda create -n deciwatch-env python=3.9 -y
+conda activate deciwatch-env
+pip install -r requirements.txt
+
+python train.py --cfg configs/config_pw3d_spin_3D.yaml --dataset_name pw3d --estimator spin --body_representation 3D --sample_interval 10
+
+

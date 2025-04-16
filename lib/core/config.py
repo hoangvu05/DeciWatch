@@ -99,6 +99,9 @@ cfg.TRAIN.VALIDATE = True  # validate while training
 cfg.TRAIN.USE_SMPL_LOSS = False  # True: use 3D keypoint as supervision | False: use pose parameter as supervivion
 cfg.TRAIN.USE_6D_SMPL = True  # True: use 6D rotation | False: use Rotation Vectors (only take effect when cfg.TRAIN.USE_SMPL_LOSS=False )
 cfg.TRAIN.PRE_NORM = False  # pre-norm in model
+cfg.EXP_NAME = "default"  # experiment name
+cfg.TRAIN.SAVE_CHECKPOINT = True  # save checkpoint
+cfg.TRAIN.RESUME=None  # resume training checkpoint path
 
 # test config
 cfg.EVALUATE = CN()
@@ -109,6 +112,9 @@ cfg.EVALUATE.SLIDE_WINDOW_STEP_SIZE = cfg.MODEL.INTERVAL_N * cfg.EVALUATE.SLIDE_
 cfg.EVALUATE.INTERP='linear'
 cfg.EVALUATE.RELATIVE_IMPROVEMENT=False
 cfg.EVALUATE.DENOISE=False
+cfg.EVALUATE.CONFIG=True # to see the performance of the linear interpolatio.
+cfg.EVALUATE.RELATIVE_IMPROVEMENT = True   # to see the relative improvemrnt of DeciWatch, which is calculated as:
+cfg.EVALUATE.DENOISE = False  # to see the performance of DeciWatch DenoiseNet
 
 # loss config
 cfg.LOSS = CN()
@@ -150,11 +156,21 @@ def get_cfg_defaults():
     return cfg.clone()
 
 
+# def update_cfg(cfg_file):
+#     cfg = get_cfg_defaults()
+#     cfg.merge_from_file(cfg_file)
+#     return cfg.clone()
+
+
 def update_cfg(cfg_file):
     cfg = get_cfg_defaults()
     cfg.merge_from_file(cfg_file)
+    
+    # Ensure EXP_NAME is always a list
+    if isinstance(cfg.EXP_NAME, str):
+        cfg.EXP_NAME = [cfg.EXP_NAME]
+    
     return cfg.clone()
-
 
 def parse_args():
     parser = argparse.ArgumentParser()

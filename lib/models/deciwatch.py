@@ -402,23 +402,77 @@ class TransformerEncoderLayer(nn.Module):
         src = self.norm2(src)
         return src
 
+    # def forward_pre(self,
+    #                 src,
+    #                 src_mask: Optional[Tensor] = None,
+    #                 src_key_padding_mask: Optional[Tensor] = None,
+    #                 pos: Optional[Tensor] = None):
+    #     src2 = self.norm1(src)
+    #     q = k = self.with_pos_embed(src2, pos)  #todo. linear
+    #     src2 = self.self_attn(q,
+    #                             k,
+    #                             value=src2,
+    #                             attn_mask=src_mask,
+    #                             key_padding_mask=src_key_padding_mask)[0]
+    #     src = src + self.dropout1(src2)
+    #     src2 = self.norm2(src)
+    #     src2 = self.linear2(self.dropout(self.activation(self.linear1(src2))))
+    #     src = src + self.dropout2(src2)
+    #     return src
+    
     def forward_pre(self,
-                    src,
+                    src: Tensor,
                     src_mask: Optional[Tensor] = None,
                     src_key_padding_mask: Optional[Tensor] = None,
-                    pos: Optional[Tensor] = None):
+                    pos: Optional[Tensor] = None) -> Tensor:
+        """
+        src: [T, B, C]
+        src_mask: optional causal mask, shape [T, T]
+        src_key_padding_mask: optional pad mask, shape [B, T]
+        pos: positional embeddings [T, B, C] or None
+        """
+
+        T, B, C = src.shape
+
+        # 1) Normalize input
         src2 = self.norm1(src)
-        q = k = self.with_pos_embed(src2, pos)  #todo. linear
-        src2 = self.self_attn(q,
-                                k,
-                                value=src2,
-                                attn_mask=src_mask,
-                                key_padding_mask=src_key_padding_mask)[0]
-        src = src + self.dropout1(src2)
+        q = k = self.with_pos_embed(src2, pos)
+
+        # 2) Build/validate src_mask (attn_mask) as square [T, T]
+        if src_mask is None or src_mask.shape != (T, T):
+            # create causal mask if none provided
+            mask = torch.triu(torch.full((T, T), float('-inf'),
+                                         device=src.device), diagonal=1)
+            src_mask = mask
+        else:
+            # ensure correct dtype
+            if src_mask.dtype not in (torch.bool, torch.float):
+                src_mask = src_mask.float().to(src.device)
+
+        # 3) Ensure src_key_padding_mask is boolean [B, T]
+        if src_key_padding_mask is not None:
+            if src_key_padding_mask.dtype != torch.bool:
+                src_key_padding_mask = src_key_padding_mask.bool().to(src.device)
+
+        # 4) Self‑attention
+        attn_output = self.self_attn(
+            query=q,
+            key=k,
+            value=src2,
+            attn_mask=src_mask,                   # [T, T]
+            key_padding_mask=src_key_padding_mask  # [B, T]
+        )[0]
+
+        # 5) Residual + dropout
+        src = src + self.dropout1(attn_output)
+
+        # 6) Feed‑forward
         src2 = self.norm2(src)
         src2 = self.linear2(self.dropout(self.activation(self.linear1(src2))))
         src = src + self.dropout2(src2)
+
         return src
+
 
     def forward(self,
                 src,
@@ -493,29 +547,77 @@ class TransformerDecoderLayer(nn.Module):
         tgt = self.norm3(tgt)
         return tgt
 
+    # def forward_pre(self,
+    #                 tgt,
+    #                 memory,
+    #                 tgt_mask: Optional[Tensor] = None,
+    #                 memory_mask: Optional[Tensor] = None,
+    #                 tgt_key_padding_mask: Optional[Tensor] = None,
+    #                 memory_key_padding_mask: Optional[Tensor] = None,
+    #                 pos: Optional[Tensor] = None,
+    #                 query_pos: Optional[Tensor] = None):
+    #     tgt2 = self.norm1(tgt)
+    #     q = k = self.with_pos_embed(tgt2, query_pos)
+    #     tgt2 = self.self_attn(q,
+    #                             k,
+    #                             value=tgt2,
+    #                             attn_mask=tgt_mask,
+    #                             key_padding_mask=tgt_key_padding_mask)[0]
+    #     tgt = tgt + self.dropout1(tgt2)
+    #     tgt2 = self.norm2(tgt)
+    #     tgt2 = self.multihead_attn(query=self.with_pos_embed(tgt2, query_pos),
+    #                                 key=self.with_pos_embed(memory, pos),
+    #                                 value=memory,
+    #                                 attn_mask=memory_mask,
+    #                                 key_padding_mask=memory_key_padding_mask)[0]
+
+    #     tgt = tgt + self.dropout2(tgt2)
+    #     tgt2 = self.norm3(tgt)
+    #     tgt2 = self.linear2(self.dropout(self.activation(self.linear1(tgt2))))
+    #     tgt = tgt + self.dropout3(tgt2)
+    #     return tgt
+    
     def forward_pre(self,
-                    tgt,
-                    memory,
-                    tgt_mask: Optional[Tensor] = None,
-                    memory_mask: Optional[Tensor] = None,
-                    tgt_key_padding_mask: Optional[Tensor] = None,
-                    memory_key_padding_mask: Optional[Tensor] = None,
-                    pos: Optional[Tensor] = None,
-                    query_pos: Optional[Tensor] = None):
+                tgt,
+                memory,
+                tgt_mask: Optional[Tensor] = None,
+                memory_mask: Optional[Tensor] = None,
+                tgt_key_padding_mask: Optional[Tensor] = None,
+                memory_key_padding_mask: Optional[Tensor] = None,
+                pos: Optional[Tensor] = None,
+                query_pos: Optional[Tensor] = None):
         tgt2 = self.norm1(tgt)
         q = k = self.with_pos_embed(tgt2, query_pos)
+
+        # Ensure tgt_mask is of the correct type
+        if tgt_mask is not None and tgt_mask.dtype not in [torch.bool, torch.float]:
+            tgt_mask = tgt_mask.float()
+
+        # Ensure tgt_key_padding_mask is of the correct type
+        if tgt_key_padding_mask is not None and tgt_key_padding_mask.dtype not in [torch.bool, torch.float]:
+            tgt_key_padding_mask = tgt_key_padding_mask.bool()
+
         tgt2 = self.self_attn(q,
-                                k,
-                                value=tgt2,
-                                attn_mask=tgt_mask,
-                                key_padding_mask=tgt_key_padding_mask)[0]
+                            k,
+                            value=tgt2,
+                            attn_mask=tgt_mask,
+                            key_padding_mask=tgt_key_padding_mask)[0]
         tgt = tgt + self.dropout1(tgt2)
         tgt2 = self.norm2(tgt)
+
+        # Ensure memory_mask is of the correct type
+        if memory_mask is not None and memory_mask.dtype not in [torch.bool, torch.float]:
+            memory_mask = memory_mask.float()
+
+        # Ensure memory_key_padding_mask is of the correct type
+        if memory_key_padding_mask is not None and memory_key_padding_mask.dtype not in [torch.bool, torch.float]:
+            memory_key_padding_mask = memory_key_padding_mask.bool()
+
         tgt2 = self.multihead_attn(query=self.with_pos_embed(tgt2, query_pos),
-                                    key=self.with_pos_embed(memory, pos),
-                                    value=memory,
-                                    attn_mask=memory_mask,
-                                    key_padding_mask=memory_key_padding_mask)[0]
+                                key=self.with_pos_embed(memory, pos),
+                                value=memory,
+                                attn_mask=memory_mask,
+                                key_padding_mask=memory_key_padding_mask)[0]
 
         tgt = tgt + self.dropout2(tgt2)
         tgt2 = self.norm3(tgt)

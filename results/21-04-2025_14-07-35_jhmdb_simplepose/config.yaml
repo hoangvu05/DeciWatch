@@ -1,0 +1,171 @@
+!!python/object/new:yacs.config.CfgNode
+dictitems:
+  BODY_REPRESENTATION: 2D
+  CUDNN: !!python/object/new:yacs.config.CfgNode
+    dictitems:
+      BENCHMARK: true
+      DETERMINISTIC: false
+      ENABLED: true
+    state:
+      __deprecated_keys__: !!set {}
+      __immutable__: false
+      __new_allowed__: false
+      __renamed_keys__: {}
+  DATASET: !!python/object/new:yacs.config.CfgNode
+    dictitems:
+      AIST: !!python/object/new:yacs.config.CfgNode
+        dictitems:
+          DETECTED_PATH: data/detected_poses/aist
+          GROUND_TRUTH_PATH: data/groundtruth_poses/aist
+          KEYPOINT_NUM: 14
+          KEYPOINT_ROOT:
+          - 2
+          - 3
+        state:
+          __deprecated_keys__: !!set {}
+          __immutable__: false
+          __new_allowed__: false
+          __renamed_keys__: {}
+      H36M: !!python/object/new:yacs.config.CfgNode
+        dictitems:
+          DETECTED_PATH: data/detected_poses/h36m
+          GROUND_TRUTH_PATH: data/groundtruth_poses/h36m
+          KEYPOINT_NUM: 17
+          KEYPOINT_ROOT:
+          - 0
+        state:
+          __deprecated_keys__: !!set {}
+          __immutable__: false
+          __new_allowed__: false
+          __renamed_keys__: {}
+      JHMDB: !!python/object/new:yacs.config.CfgNode
+        dictitems:
+          DETECTED_PATH: data/detected_poses/jhmdb
+          GROUND_TRUTH_PATH: data/groundtruth_poses/jhmdb
+          KEYPOINT_NUM: 15
+          KEYPOINT_ROOT:
+          - 2
+        state:
+          __deprecated_keys__: !!set {}
+          __immutable__: false
+          __new_allowed__: false
+          __renamed_keys__: {}
+      PW3D: !!python/object/new:yacs.config.CfgNode
+        dictitems:
+          DETECTED_PATH: data/detected_poses/pw3d
+          GROUND_TRUTH_PATH: data/groundtruth_poses/pw3d
+          KEYPOINT_NUM: 14
+          KEYPOINT_ROOT:
+          - 2
+          - 3
+        state:
+          __deprecated_keys__: !!set {}
+          __immutable__: false
+          __new_allowed__: false
+          __renamed_keys__: {}
+    state:
+      __deprecated_keys__: !!set {}
+      __immutable__: false
+      __new_allowed__: false
+      __renamed_keys__: {}
+  DATASET_NAME: jhmdb
+  DEBUG: true
+  DEVICE: cuda
+  ESTIMATOR: simplepose
+  EVALUATE: !!python/object/new:yacs.config.CfgNode
+    dictitems:
+      DENOISE: false
+      INTERP: linear
+      PRETRAINED: data/checkpoints/jhmdb_simplepose_2d/checkpoint.pth.tar
+      RELATIVE_IMPROVEMENT: false
+      ROOT_RELATIVE: true
+      SLIDE_WINDOW_STEP_Q: 1
+      SLIDE_WINDOW_STEP_SIZE: 10
+    state:
+      __deprecated_keys__: !!set {}
+      __immutable__: false
+      __new_allowed__: false
+      __renamed_keys__: {}
+  EXP_NAME: jhmdb_simplepose
+  LOG: !!python/object/new:yacs.config.CfgNode
+    dictitems:
+      NAME: ''
+    state:
+      __deprecated_keys__: !!set {}
+      __immutable__: false
+      __new_allowed__: false
+      __renamed_keys__: {}
+  LOGDIR: results/21-04-2025_14-07-35_jhmdb_simplepose
+  LOSS: !!python/object/new:yacs.config.CfgNode
+    dictitems:
+      LAMADA: 5.0
+      W_DENOISE: 1.0
+    state:
+      __deprecated_keys__: !!set {}
+      __immutable__: false
+      __new_allowed__: false
+      __renamed_keys__: {}
+  MODEL: !!python/object/new:yacs.config.CfgNode
+    dictitems:
+      DECODER: transformer
+      DECODER_EMBEDDING_DIMENSION: 128
+      DECODER_HEAD: 4
+      DECODER_INTERP: linear
+      DECODER_RESIDUAL: true
+      DECODER_TOKEN_WINDOW: 5
+      DECODER_TRANSFORMER_BLOCK: 5
+      DROPOUT: 0.1
+      ENCODER_EMBEDDING_DIMENSION: 128
+      ENCODER_HEAD: 4
+      ENCODER_RESIDUAL: true
+      ENCODER_TRANSFORMER_BLOCK: 5
+      INTERVAL_N: 10
+      NAME: ''
+      SAMPLE_TYPE: uniform
+      SLIDE_WINDOW: true
+      SLIDE_WINDOW_Q: 1
+      SLIDE_WINDOW_SIZE: 11
+      TYPE: network
+    state:
+      __deprecated_keys__: !!set {}
+      __immutable__: false
+      __new_allowed__: false
+      __renamed_keys__: {}
+  OUTPUT_DIR: results
+  SAMPLE_INTERVAL: 10
+  SEED_VALUE: 4321
+  SMPL_MODEL_DIR: data/smpl/
+  TRAIN: !!python/object/new:yacs.config.CfgNode
+    dictitems:
+      BATCH_SIZE: 16
+      EPOCH: 70
+      LR: 0.001
+      LRDECAY: 0.95
+      PRE_NORM: false
+      RESUME: null
+      USE_6D_SMPL: false
+      USE_SMPL_LOSS: false
+      VALIDATE: true
+      WORKERS_NUM: 0
+    state:
+      __deprecated_keys__: !!set {}
+      __immutable__: false
+      __new_allowed__: false
+      __renamed_keys__: {}
+  VIS: !!python/object/new:yacs.config.CfgNode
+    dictitems:
+      END: 100
+      INPUT_VIDEO_NUMBER: 156
+      INPUT_VIDEO_PATH: data/videos/
+      OUTPUT_VIDEO_PATH: demo/
+      START: 0
+    state:
+      __deprecated_keys__: !!set {}
+      __immutable__: false
+      __new_allowed__: false
+      __renamed_keys__: {}
+state:
+  __deprecated_keys__: !!set {}
+  __immutable__: false
+  __new_allowed__: false
+  __renamed_keys__: {}

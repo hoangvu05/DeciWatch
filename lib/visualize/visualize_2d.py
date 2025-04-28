@@ -87,6 +87,7 @@ def visualize_2d_jhmdb(data_imgname,
                        end_frame,
                        interval=10):
     video_base_path = os.path.dirname(data_imgname[0])
+    #video_base_path = "/projectnb/cs585bp/students/anhvu/DeciWatch/data/videos/jhmdb/comparison"
     print(f"You are visualizing the result of {video_base_path} ...")
 
     if not os.path.exists(vis_output_video_path):

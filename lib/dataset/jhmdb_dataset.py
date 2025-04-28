@@ -165,6 +165,11 @@ class JHMDBDataset(BaseDataset):
 
         return {"gt": gt_data, "pred": pred_data}
 
+    def get_image_path(self, seq_idx, frame_idx):
+        """Modified to use flat directory structure"""
+        frame_num = self.data_start_num[seq_idx] + frame_idx + 1  # +1 for 1-based indexing
+        return os.path.join(self.cfg.VIS.INPUT_VIDEO_PATH, f"{frame_num:05d}.png")
+
     def get_test_data(self, index):
         ground_truth_data_len = len(self.ground_truth_data_imgname[index])
         detected_data_len = len(self.detected_data_imgname[index])

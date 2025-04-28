@@ -286,6 +286,8 @@ class Visualize():
         data_pred = self.detected_data["joints_2d"][self.vis_seq_index]
 
         data_imgname = self.ground_truth_data["imgname"][self.vis_seq_index]
+        #print(data_imgname)
+        
         data_bbox = self.ground_truth_data["bbox"][self.vis_seq_index]
         data_imageshape=self.ground_truth_data["imgshape"][self.vis_seq_index]
 
@@ -319,14 +321,20 @@ class Visualize():
             predicted_pos.reshape(-1, keypoint_number, 2).cpu())*data_imageshape[:2][::-1]
 
         if self.dataset_name == "jhmdb":
-            data_imgname_full = np.array([''] * data_len, dtype=object)
-            for data_imgname_i in range(len(data_imgname)):
-                data_imgname_split = data_imgname[data_imgname_i].split('/')
-                data_imgname_full[data_imgname_i] = os.path.join(
-                    self.vis_input_video_path, data_imgname_split[0],
-                    data_imgname_split[1],
-                    f"{int(data_imgname_split[2])+1:05d}.png")
-            vis_output_video_name = "jhmdb_2D_" + str(
+            # data_imgname_full = np.array([''] * data_len, dtype=object)
+            # for data_imgname_i in range(len(data_imgname)):
+            #     data_imgname_split = data_imgname[data_imgname_i].split('/')
+            #     data_imgname_full[data_imgname_i] = os.path.join(
+            #         self.vis_input_video_path, data_imgname_split[0],
+            #         data_imgname_split[1],
+            #         f"{int(data_imgname_split[2])+1:05d}.png")
+            path="yellow"
+            where="yellowcolor"
+            data_imgname_full = np.array([
+                os.path.join(self.vis_input_video_path,path, f"{i+1:05d}.png") 
+                for i in range(len(data_imgname))
+            ], dtype=object)
+            vis_output_video_name = "jhmdb_2D_" + where +str(
                 self.vis_seq_index) + ".mp4"
             visualize_2d_jhmdb(
                 data_imgname_full,

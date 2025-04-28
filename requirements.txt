@@ -2,7 +2,7 @@ tensorboard==2.8.0
 pyyaml==6.0
 yacs==0.1.8
 opencv-python==4.5.5.64
-
+progress==1.6
 smplx==0.1.28
 scipy==1.5.4
 chumpy==0.70
